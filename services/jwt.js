@@ -6,14 +6,14 @@ var secret = 'clave_secreta_spotify';
 
 exports.createToken = function(user){
     var payload = {
-        sub: user._id,//id de la bd
+        sub: user._id,//id de user en la bd
         name: user.name,
         surname: user.surname,
         email: user.email,
         role: user.role,
         image: user.image,
-        iat: moment().unix(),
-        exp: moment().add(30, 'min').unix
+        iat: moment().unix(), //fecha de creacion del token
+        exp: moment().add(30, 'min').unix //fecha de expiracion del token
     };
 
     return jwt.encode(payload, secret);
