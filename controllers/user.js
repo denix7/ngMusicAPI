@@ -2,6 +2,7 @@
 
 var User = require('../models/user');
 var bcrypt = require('bcrypt-nodejs');
+var jwt = require('../services/jwt');
 
 function userTest(req, res){
     res.status(200).send({message: 'test users works'});
@@ -14,7 +15,7 @@ function saveUser(req, res){
 
     if(params.name && params.surname && params.email && params.password)
     {
-        console.log(params);
+        //console.log(params);
         user.name = params.name;
         user.surname = params.surname;
         user.email = params.email;
@@ -57,7 +58,41 @@ function saveUser(req, res){
         res.status(500).send({message: 'Es necesario llenar todos los campos'});
     }    
 }
+
+//Login
+function loginUser(req, res){
+    var params = req.body;
+
+    var email = params.email;
+    var password = params.password;
+
+    User.findOne({email: email.toLowerCase()}, (err, user) => {
+        if(err){
+            res.status(500).send({message: 'Error en la peticion'});
+        }else if(!user){
+            res.status(404).send({message: 'El usuario no existe'});
+            
+        }else{
+            //si existe el user comparo pass
+            bcrypt.compare(password, user.password, (err, check) => {
+                if(check){
+                    //devolver datos de usuario logueado
+                    if(params.gethash){
+                        //si existe gethash generar token y devolver
+                        res.status(200).send({token: jwt.createToken(user)});
+                    }else
+                        res.status(200).send({user});
+                    
+                }else{
+                    res.status(404).send({message: 'El usuario no se ha podido identificar'});
+                }
+            });
+        }              
+    });
+}
+
 module.exports = {
     userTest,
-    saveUser
+    saveUser,
+    loginUser
 }
