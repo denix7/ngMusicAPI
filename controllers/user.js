@@ -3,6 +3,7 @@
 var User = require('../models/user');
 var bcrypt = require('bcrypt-nodejs');
 var jwt = require('../services/jwt');
+var multipart = require('connect-multiparty');
 
 function userTest(req, res){
     res.status(200).send({message: 'test users works'});
@@ -115,9 +116,44 @@ function updateUser(req, res){
     }
 }
 
+//Subir avatar de usuario
+function uploadImage(req, res){
+    var userId = req.params.id;
+    var file_name = "No subido";
+
+    if(req.files){//si existe ficheros en la req
+        //sacar nombre del archivo
+        var file_path = req.files.image.path; //image es el campo del fichero que subiremos
+        var file_split = file_path.split('\\');//convierte en un array
+        var file_name = file_split[2];
+
+        //sacar extension del archivo
+        var ext_split = file_name.split('\.');
+        var file_ext = ext_split[1];
+
+        //comprobar si el fichero tiene extension correcta
+        if(file_ext == 'png' || file_ext == 'jpg' || file_ext == 'jpeg' || file_ext == 'gif'){
+            User.findByIdAndUpdate(userId, {image: file_name}, (err, userUpdated) => {
+                if(err)
+                    res.status(500).send({message: 'Error en la peticion'});
+                else if(!userUpdated)
+                    res.status(404).send({message: 'No se puede actualizar el avatar del usuario'});
+                else
+                    res.status(200).send({user: userUpdated}); 
+
+            });
+        }
+
+        //console.log(file_path);
+    }else{
+        res.status(200).send({message: 'No se ha subido ninguna imagen'});
+    }
+}
+
 module.exports = {
     userTest,
     saveUser,
     loginUser,
-    updateUser
+    updateUser,
+    uploadImage
 }
