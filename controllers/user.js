@@ -91,8 +91,33 @@ function loginUser(req, res){
     });
 }
 
+//Actualizar datos de user
+function updateUser(req, res){
+    var userId = req.params.id;  //user que se recibe por url
+    var update = req.body;
+
+    delete update.password;
+
+    if(userId != req.user.sub){//sera que es igual al usuario logueado
+        res.status(500).send({message: 'No tienes permiso para editar datos de este usuario'});
+    }
+    else{
+        User.findByIdAndUpdate(userId, update, {new:true}, (err, userUpdated) => {
+            if(err)
+                res.status(500).send({message: 'Error en la peticion'});
+            else if(!userUpdated){
+                res.status(404).send({message: 'No existe el usuario'});
+            }
+            else{
+                res.status(200).send({user: userUpdated});
+            }
+        });
+    }
+}
+
 module.exports = {
     userTest,
     saveUser,
-    loginUser
+    loginUser,
+    updateUser
 }
