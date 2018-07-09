@@ -3,7 +3,8 @@
 var User = require('../models/user');
 var bcrypt = require('bcrypt-nodejs');
 var jwt = require('../services/jwt');
-var multipart = require('connect-multiparty');
+var fs = require('fs');
+var path = require('path');
 
 function userTest(req, res){
     res.status(200).send({message: 'test users works'});
@@ -150,10 +151,23 @@ function uploadImage(req, res){
     }
 }
 
+//Obtener avatar de usuario
+function getImageFile(req, res){
+    var image_file = req.params.imageFile;
+
+    fs.exists('./uploads/users/'+image_file, (exists) => {
+        if(exists)
+            res.sendFile(path.resolve('./uploads/users/'+image_file));
+        else    
+            res.status(200).send({message: 'No existe la imagen'});    
+    });
+}
+
 module.exports = {
     userTest,
     saveUser,
     loginUser,
     updateUser,
-    uploadImage
+    uploadImage,
+    getImageFile
 }
