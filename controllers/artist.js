@@ -3,6 +3,7 @@
 var Artist = require('../models/artist');
 var Album = require('../models/album');
 var Song = require('../models/song');
+var mongoosePaginate = require('mongoose-pagination');
 
 //test
 function artistTest(req, res){
@@ -49,6 +50,7 @@ function saveArtist (req, res){
     }
 }
 
+//Obtener un artista
 function getArtist (req, res){
     
     var artistId = req.params.id;
@@ -63,8 +65,33 @@ function getArtist (req, res){
     });
 }
 
+//Obtener artistas paginados
+function getArtists (req, res) {
+
+    var page = 1;
+    if(req.params.page)
+        page = req.params.page;
+    
+    var itemsPerPage = 3;
+
+    Artist.find().sort('name').paginate(page, itemsPerPage, (err, artists, total) => {
+        if(err)
+            res.status(500).send('Error en la peticion');
+        else if(!artists)
+            res.status(404).send({message: 'No existen artistas registrados'});
+        else    
+            return res.status(200).send({
+                total_items: total,
+                pages: Math.ceil(total/itemsPerPage),
+                artists: artists
+            });        
+    });
+
+}
+
 module.exports = {
     artistTest,
     saveArtist,
-    getArtist
+    getArtist,
+    getArtists
 }
