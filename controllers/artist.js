@@ -49,7 +49,22 @@ function saveArtist (req, res){
     }
 }
 
+function getArtist (req, res){
+    
+    var artistId = req.params.id;
+
+    Artist.findById(artistId, (err, artist) => {
+        if(err)
+            res.status(500).send({message: 'Error en la peticion'});
+        else if(!artist)
+            res.status(404).send({message: 'No existe ese artista'});
+        else    
+            res.status(200).send({artist});        
+    });
+}
+
 module.exports = {
     artistTest,
-    saveArtist
+    saveArtist,
+    getArtist
 }
