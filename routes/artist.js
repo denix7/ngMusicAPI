@@ -7,8 +7,9 @@ var md_auth = require('../middlewares/authenticated');
 var api = express.Router();
 
 api.get('/artistTest', artistController.artistTest);
-api.post('/register-artist', md_auth.ensureAuth, artistController.saveArtist);
+api.post('/artist', md_auth.ensureAuth, artistController.saveArtist);
 api.get('/artist/:id', md_auth.ensureAuth, artistController.getArtist);
 api.get('/artists/:page?', md_auth.ensureAuth, artistController.getArtists);
+api.put('/artist/:id', md_auth.ensureAuth, artistController.updateArtist);
 
 module.exports = api;
